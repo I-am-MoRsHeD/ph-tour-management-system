@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { catchAsync } from "../../utils/catchAsync";
@@ -10,15 +11,49 @@ import { createUserTokens } from "../../utils/userTokens";
 import { IUser } from "../user/user.interface";
 import { envVars } from "../../config/env";
 
+// const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+//     const loginInfo = await AuthServices.credentialsLogin(req.body);
+//     setCookies(res, loginInfo);
+//     sendResponse(res, {
+//         statusCode: 200,
+//         success: true,
+//         message: "User logged in successfully",
+//         data: loginInfo
+//     })
+// });
+
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
-    setCookies(res, loginInfo);
-    sendResponse(res, {
-        statusCode: 200,
-        success: true,
-        message: "User logged in successfully",
-        data: loginInfo
-    })
+
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+        if (err) {
+            // egolo use kora jabhena--- X
+            // throw new AppError();
+            // next(err);
+            // return new AppError(401, err);
+
+            // egolo use kora jabhe
+            // return next(new AppError(401, err));
+            return next(err);
+        };
+        if (!user) {
+            return next(new AppError(401, info.message));
+        };
+
+        const userTokens = await createUserTokens(user);
+        const { password: pass, ...rest } = user.toObject();
+
+        setCookies(res, userTokens);
+        sendResponse(res, {
+            statusCode: 200,
+            success: true,
+            message: "User logged in successfully",
+            data: {
+                accessToken: userTokens.accessToken,
+                refreshToken: userTokens.refreshToken,
+                user: rest
+            }
+        })
+    })(req, res, next)
 });
 
 const getNewAccesssToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
