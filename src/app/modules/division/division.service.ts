@@ -9,16 +9,7 @@ const createDivision = async (payload: Partial<IDivision>) => {
         throw new AppError(400, "A division with this name already exists.");
     };
 
-    // const baseSlug = payload.name?.toLowerCase().split(" ").join("-");
-    const baseSlug = payload.name?.toLowerCase();
-    let slug = `${baseSlug}-division`
-
-    let counter = 0;
-    while (await Division.exists({ slug })) {
-        slug = `${slug}-${counter++}`
-    }
-
-    payload.slug = slug;
+    // model a 1ta middleware/pre hook use kora hoise slug auto create howar jonno
 
     const division = await Division.create(payload);
     return division
@@ -56,15 +47,7 @@ const updateDivision = async (id: string, payload: Partial<IDivision>) => {
         throw new AppError(400, "A division with this name already exists.");
     };
 
-    const baseSlug = payload.name?.toLowerCase();
-    let slug = `${baseSlug}-division`
-
-    let counter = 0;
-    while (await Division.exists({ slug })) {
-        slug = `${slug}-${counter++}`
-    }
-
-    payload.slug = slug;
+    // model a 1ta middleware/pre hook use kora hoise slug auto update howar jonno howar jonno
 
     const updateDivision = await Division.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
     return updateDivision
