@@ -10,6 +10,7 @@ import passport from "passport";
 import { createUserTokens } from "../../utils/userTokens";
 import { IUser } from "../user/user.interface";
 import { envVars } from "../../config/env";
+import { JwtPayload } from "jsonwebtoken";
 
 // const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 //     const loginInfo = await AuthServices.credentialsLogin(req.body);
@@ -97,7 +98,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
     const { oldPassword, newPassword } = req.body;
     const decodedToken = req.user;
 
-    const newUpdatePassword = await AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
+    const newUpdatePassword = await AuthServices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload);
 
     sendResponse(res, {
         statusCode: 200,

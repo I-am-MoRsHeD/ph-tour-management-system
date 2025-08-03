@@ -46,7 +46,7 @@ tourSchema.pre('save', async function (next) {
         const baseSlug = this.title?.toLowerCase().split(" ").join("-");
         let slug = `${baseSlug}`
 
-        // optional,,jodi by any change mongoose er validation failed kore,taile eikane ashe atkai jabhe!eita na korleo emnitei slug uniquely set hobe
+        // optional,,jodi by any chance mongoose er validation failed kore,taile eikane ashe atkai jabhe!eita na korleo emnitei slug uniquely set hobe
         let counter = 0;
         while (await Tour.exists({ slug })) {
             slug = `${slug}-${counter++}`

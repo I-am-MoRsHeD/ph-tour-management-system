@@ -86,31 +86,6 @@ const getAllTours = async (query: Record<string, string>) => {
     }
 };
 
-// const getAllTours = async (query: Record<string, string>) => {
-
-
-//     const queryBuilder = new QueryBuilder(Tour.find(), query)
-
-//     const tours = await queryBuilder
-//         .search(tourSearchableFields)
-//         .filter()
-//         .sort()
-//         .fields()
-//         .paginate()
-
-//     // const meta = await queryBuilder.getMeta()
-
-//     const [data, meta] = await Promise.all([
-//         tours.build(),
-//         queryBuilder.getMeta()
-//     ])
-
-
-//     return {
-//         data,
-//         meta
-//     }
-// };
 
 const updateTour = async (id: string, payload: Partial<ITour>) => {
 
