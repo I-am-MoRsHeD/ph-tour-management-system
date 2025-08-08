@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import AppError from "../../errorHelpers/AppError";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
 import { Payment } from "../payment/payment.model";
+import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
+import { SSLServices } from "../sslCommerz/sslCommerz.service";
 import { Tour } from "../tour/tour.model";
 import { User } from "../user/user.model";
 import { BOOKING_STATUS, IBooking } from "./booking.interface";
@@ -49,17 +52,43 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
 
         const updateBooking = await Booking.findByIdAndUpdate(booking[0]._id, {
             payment: payment[0]._id
-        }, { new: true, runValidators: true, session });
+        }, { new: true, runValidators: true, session })
+            .populate('user', "name email phone address")
+            .populate('tour', "title costFrom")
+            .populate('payment');
+
+        const userName = (updateBooking?.user as any).name;
+        const useremail = (updateBooking?.user as any).email;
+        const userPhone = (updateBooking?.user as any).phone;
+        const userAddress = (updateBooking?.user as any).address;
+
+        const sslPayload: ISSLCommerz = {
+            name: userName,
+            email: useremail,
+            phone: userPhone,
+            address: userAddress,
+            amount: amount,
+            transactionId : transactionId
+        };
+
+        const sslPayment = await SSLServices.sslPaymentInit(sslPayload);
 
         await session.commitTransaction(); // commit to actual database
         session.endSession();
-        return updateBooking
+        return {
+            paymentUrl : sslPayment.GatewayPageURL,
+            booking : updateBooking
+        }
     } catch (error) {
         await session.abortTransaction(); // rollback
         session.endSession();
         throw error;
     }
 };
+
+// Frontend(localhost:5173) - User - Tour - Booking (Pending) - Payment(Unpaid) -> SSLCommerz Page -> Payment Complete -> Backend(localhost:5000/api/v1/payment/success) -> Update Payment(PAID) & Booking(CONFIRM) -> redirect to frontend -> Frontend(localhost:5173/payment/success)
+
+// Frontend(localhost:5173) - User - Tour - Booking (Pending) - Payment(Unpaid) -> SSLCommerz Page -> Payment Fail / Cancel -> Backend(localhost:5000/api/v1/payment/fail or cancel) -> Update Payment(FAIL / CANCEL) & Booking(FAIL / CANCEL) -> redirect to frontend -> Frontend(localhost:5173/payment/cancel or localhost:5173/payment/fail)
 
 const getAllBookings = async () => {
     return {};
