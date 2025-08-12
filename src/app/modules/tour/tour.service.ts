@@ -3,6 +3,7 @@ import { tourSearchableFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
 import { Tour, TourType } from "./tour.model";
 import { QueryBuilder } from "../../utils/QueryBuilder";
+import { deleteImageFromCloudinary } from "../../config/cloudinary.config";
 
 // tour api services
 const createTour = async (payload: ITour) => {
@@ -97,7 +98,29 @@ const updateTour = async (id: string, payload: Partial<ITour>) => {
 
     // model a 1ta middleware/pre hook use kora hoise slug auto update howar jonno
 
+    if (payload.images && payload.images?.length > 0 && existingTour.images && existingTour.images?.length > 0) {
+        payload.images = [...payload.images, ...existingTour.images];
+    };
+
+    if (payload.deleteImages && payload.deleteImages?.length > 0 && existingTour.images && existingTour.images?.length > 0) {
+
+        const restImages = existingTour.images?.filter(imageUrl => !payload.deleteImages?.includes(imageUrl));
+
+        const updatedImages = (payload.images || [])
+            .filter(imageUrl => !payload.deleteImages?.includes(imageUrl))
+            .filter(imageUrl => !restImages?.includes(imageUrl));
+
+        payload.images = [...restImages, ...updatedImages];
+    };
+
     const updatedTour = await Tour.findByIdAndUpdate(id, payload, { new: true });
+
+    // delete the images from cloudinary
+    if (payload.deleteImages && payload.deleteImages?.length > 0 && existingTour.images && existingTour.images?.length > 0) {
+        for (const file of payload.deleteImages) {
+            await deleteImageFromCloudinary(file);
+        };
+    };
 
     return updatedTour;
 };

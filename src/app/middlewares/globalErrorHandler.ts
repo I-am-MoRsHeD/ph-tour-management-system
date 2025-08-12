@@ -6,6 +6,7 @@ import AppError from "../errorHelpers/AppError";
 import mongoose from "mongoose";
 import { TErrorSources } from "../interfaces/error.types";
 import { handleCastError, handleDuplicateError, handleMongooseValidationError, handleZodValidationError } from "../helpers/errorHelperFunctions";
+import { deleteImageFromCloudinary } from "../config/cloudinary.config";
 
 /**
  * Mongoose errors
@@ -15,8 +16,18 @@ import { handleCastError, handleDuplicateError, handleMongooseValidationError, h
  * 
  * Zod Validation Error
  */
-export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction) => {
+export const globalErrorHandler = async (err: any, req: Request, res: Response, next: NextFunction) => {
     if (envVars.NODE_ENV === 'development') console.log(err);
+
+    if (req.file) {
+        await deleteImageFromCloudinary(req.file.path);
+    }
+
+    if (req.files && Array.isArray(req.files) && req.files.length > 0) {
+        for (const file of req.files) {
+            await deleteImageFromCloudinary(file.path);
+        }
+    }
 
     let statusCode = 500;
     let message = "Something went wrong!!!";

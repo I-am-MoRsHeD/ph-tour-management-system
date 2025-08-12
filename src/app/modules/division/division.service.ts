@@ -1,3 +1,4 @@
+import { deleteImageFromCloudinary } from "../../config/cloudinary.config";
 import AppError from "../../errorHelpers/AppError";
 import { IDivision } from "./division.interface";
 import { Division } from "./division.model";
@@ -50,6 +51,11 @@ const updateDivision = async (id: string, payload: Partial<IDivision>) => {
     // model a 1ta middleware/pre hook use kora hoise slug auto update howar jonno howar jonno
 
     const updateDivision = await Division.findByIdAndUpdate(id, payload, { new: true, runValidators: true });
+
+    if (payload.thumbnail && existingDivision.thumbnail) {
+        await deleteImageFromCloudinary(payload.thumbnail);
+    };
+
     return updateDivision
 }
 

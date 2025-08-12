@@ -4,6 +4,7 @@ import { Role } from "../user/user.interface";
 import { validateSchema } from "../../middlewares/validateSchema";
 import { createTourTypeZodSchema, createTourZodSchema, updateTourZodSchema } from "./tour.validation";
 import { checkAuth } from "../../middlewares/checkAuth";
+import { multerUpload } from "../../config/multer.config";
 
 
 const router = Router();
@@ -29,12 +30,14 @@ router.get("/", TourController.getAllTours);
 router.post(
     "/create",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    multerUpload.array("files"), //multiple image jabhe,tai array and files likte hoise
     validateSchema(createTourZodSchema),
     TourController.createTour
 );
 router.patch(
     "/:id",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    multerUpload.array("files"),
     validateSchema(updateTourZodSchema),
     TourController.updateTour
 );
