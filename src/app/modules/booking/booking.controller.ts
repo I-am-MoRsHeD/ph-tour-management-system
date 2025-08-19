@@ -11,51 +11,51 @@ const createBooking = catchAsync(async (req: Request, res: Response, next: NextF
     const decodedUser = req.user as JwtPayload;
 
     const booking = await BookingServices.createBooking(req.body, decodedUser.userId);
-    sendResponse<IBooking>(res, {
+    sendResponse(res, {
         statusCode: 201,
         success: true,
         message: "Booking created successfully",
-        data: booking as IBooking
+        data: booking
     });
 });
 
 const getAllBookings = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const booking = await BookingServices.getAllBookings();
-    sendResponse<IBooking>(res, {
+    sendResponse(res, {
         statusCode: 200,
         success: true,
         message: "All bookings retrieved successfully",
-        data: {}
+        data: booking
     });
 });
 
 const getUserBookings = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const booking = await BookingServices.getUserBookings();
-    sendResponse<IBooking>(res, {
+    sendResponse(res, {
         statusCode: 200,
         success: true,
         message: "Booking retrieved successfully",
-        data: {}
+        data: booking
     });
 });
 
 const getSingleBooking = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const booking = await BookingServices.getSingleBooking();
-    sendResponse<IBooking>(res, {
+    sendResponse(res, {
         statusCode: 200,
         success: true,
         message: "Single booking retrieved successfully",
-        data: {}
+        data: booking
     });
 });
 
 const updateBooking = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const booking = await BookingServices.updateBooking();
-    sendResponse<IBooking>(res, {
+    sendResponse(res, {
         statusCode: 200,
         success: true,
         message: "Booking updated successfully",
-        data: {}
+        data: booking
     });
 });
 
