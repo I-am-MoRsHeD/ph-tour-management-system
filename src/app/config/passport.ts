@@ -4,7 +4,7 @@ import { Strategy as GoogleStrategy, Profile, VerifyCallback } from "passport-go
 import { Strategy as LocalStrategy } from "passport-local";
 import { envVars } from "./env";
 import { User } from "../modules/user/user.model";
-import { IUser, Role } from "../modules/user/user.interface";
+import { Active, IUser, Role } from "../modules/user/user.interface";
 import bcrypt from 'bcryptjs';
 
 passport.use(
@@ -15,9 +15,14 @@ passport.use(
         try {
             const isUserExist = await User.findOne({ email });
             if (!isUserExist) {
-                done(null, false, { message: "User does not exist" });
+                return done(null, false, { message: "User does not exist" });
             };
-
+            if (isUserExist && (isUserExist.isActive === Active.BLOCKED || isUserExist.isActive === Active.INACTIVE)) {
+                return done(null, false, { message: `User is ${isUserExist.isActive}` });
+            };
+            if (isUserExist && isUserExist.isDeleted) {
+                return done(null, false, { message: 'User is deleted!' });
+            };
             const isGoogleAuthenticated = isUserExist?.auths?.some(auth => auth.provider === 'google');
             if (isGoogleAuthenticated && !isUserExist?.password) {
                 return done(null, false, { message: "You have logged in through Google. If you want to login with credentials then please login with google and set a password after login. Then you can login with email and password!" });
@@ -25,7 +30,7 @@ passport.use(
 
             const bcryptedPassword = await bcrypt.compare(password as string, isUserExist?.password as string);
             if (!bcryptedPassword) {
-                done(null, false, { message: "Password is incorrect" });
+                return done(null, false, { message: "Password is incorrect" });
             };
 
             return done(null, isUserExist as Partial<IUser>);
@@ -49,10 +54,15 @@ passport.use(
                 return done(null, false, { message: "No email found" });
             };
 
-            let user = await User.findOne({ email });
-
-            if (!user) {
-                user = await User.create({
+            let isUserExist = await User.findOne({ email });
+            if (isUserExist && (isUserExist.isActive === Active.BLOCKED || isUserExist.isActive === Active.INACTIVE)) {
+                return done(null, false, { message: `User is ${isUserExist.isActive}` });
+            };
+            if (isUserExist && isUserExist.isDeleted) {
+                return done(null, false, { message: 'User is deleted!' });
+            };
+            if (!isUserExist) {
+                isUserExist = await User.create({
                     email,
                     name: profile.displayName,
                     picture: profile.photos?.[0].value,
@@ -67,7 +77,7 @@ passport.use(
                 });
             };
 
-            return done(null, user);
+            return done(null, isUserExist);
         } catch (error) {
             console.log('Google strategy error', error);
             done(error);

@@ -20,6 +20,9 @@ export const checkAuth = (...roles: string[]) => async (req: Request, res: Respo
         if (!isUserExist) {
             throw new AppError(400, 'User does not exist');
         };
+        if (isUserExist && !isUserExist.isVerified) {
+            throw new AppError(400, 'User is not verified');
+        }
         if (isUserExist.isActive === Active.BLOCKED || isUserExist.isActive === Active.INACTIVE) {
             throw new AppError(400, `User is ${isUserExist.isActive}`);
         };

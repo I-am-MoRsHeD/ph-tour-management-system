@@ -93,17 +93,61 @@ const logout = catchAsync(async (req: Request, res: Response, next: NextFunction
     })
 });
 
-const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const changePassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const { oldPassword, newPassword } = req.body;
     const decodedToken = req.user;
 
-    const newUpdatePassword = await AuthServices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload);
+    const newUpdatePassword = await AuthServices.changePassword(oldPassword, newPassword, decodedToken as JwtPayload);
 
     sendResponse(res, {
         statusCode: 200,
         success: true,
-        message: "User logged out successfully",
+        message: "Password has been changed successfully",
+        data: null
+    })
+});
+
+const setPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const { password } = req.body;
+    const decodedToken = req.user as JwtPayload;
+
+    await AuthServices.setPassword(decodedToken.userId, password);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Password has been set successfully",
+        data: null
+    })
+});
+
+const forgotPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const { email } = req.body;
+
+    await AuthServices.forgotPassword(email);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Email has been sent!",
+        data: null
+    })
+});
+
+// http://localhost:5173/reset-password?id=68a5d55e343a324775346c25&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2OGE1ZDU1ZTM0M2EzMjQ3NzUzNDZjMjUiLCJlbWFpbCI6Im9tYXRpbnBsYXlzQGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU1Njk5MjQ5LCJleHAiOjE3NTU2OTk4NDl9.1YAOs01lRK9C9exJ6lQT9nNHee2HbcKMI2_p9l2GO1g
+
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user;
+
+    await AuthServices.resetPassword(req.body, decodedToken as JwtPayload);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Password has been reseted successfully",
         data: null
     })
 });
@@ -138,6 +182,9 @@ export const AuthControllers = {
     credentialsLogin,
     getNewAccesssToken,
     logout,
+    changePassword,
+    setPassword,
+    forgotPassword,
     resetPassword,
     googleLogin,
     googleLoginCallback
