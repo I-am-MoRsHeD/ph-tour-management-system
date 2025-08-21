@@ -51,7 +51,14 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
     if (!isUserExist) {
         throw new AppError(httpStatus.NOT_FOUND, "User does not exist");
     };
-
+    if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+        if (decodedToken.userId !== userId) {
+            throw new AppError(httpStatus.FORBIDDEN, "You are not permitted to do this!!");
+        };
+    };
+    if (decodedToken.role === Role.ADMIN && isUserExist.role === Role.SUPER_ADMIN) {
+        throw new AppError(httpStatus.FORBIDDEN, "You are not permitted to do this!!");
+    }
     if (payload.role) {
         if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
             throw new AppError(httpStatus.FORBIDDEN, "You are not permitted to do this!!");
@@ -63,10 +70,6 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
 
     if (payload.isActive || payload.isDeleted || payload.isVerified) {
         throw new AppError(httpStatus.FORBIDDEN, "You are not permitted to do this!!");
-    }
-
-    if (payload.password) {
-        payload.password = await bcrypt.hash(payload.password as string, envVars.BCRYPT_SALT_ROUNDS);
     };
 
     const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true });
