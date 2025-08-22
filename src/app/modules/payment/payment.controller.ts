@@ -22,7 +22,7 @@ const initPayment = catchAsync(async (req: Request, res: Response, next: NextFun
 const successPayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const query = req.query as Record<string, string>;
     const result = await PaymentServices.successPayment(query);
-
+    console.log(envVars.SSL.SSL_SUCCESS_FRONTEND_URL);
     if (result.success) {
         res.redirect(`${envVars.SSL.SSL_SUCCESS_FRONTEND_URL}?transactionId=${query.transactionId}&amount=${query.amount}&status=${query.status}`);
     }
@@ -62,7 +62,7 @@ const getInvoiceURL = catchAsync(async (req: Request, res: Response, next: NextF
 });
 
 const validatePayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    console.log("validate payment body data", req.body);
+
     await SSLServices.validatePayment(req.body);
 
     sendResponse(res, {

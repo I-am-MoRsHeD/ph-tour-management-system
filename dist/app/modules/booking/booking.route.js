@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.bookingRoutes = void 0;
+const express_1 = require("express");
+const validateSchema_1 = require("../../middlewares/validateSchema");
+const booking_validation_1 = require("./booking.validation");
+const booking_controller_1 = require("./booking.controller");
+const checkAuth_1 = require("../../middlewares/checkAuth");
+const user_interface_1 = require("../user/user.interface");
+const router = (0, express_1.Router)();
+router.post('/', (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), (0, validateSchema_1.validateSchema)(booking_validation_1.createBookingZodSchema), booking_controller_1.BookingControllers.createBooking);
+router.get('/', (0, checkAuth_1.checkAuth)(user_interface_1.Role.SUPER_ADMIN, user_interface_1.Role.ADMIN), booking_controller_1.BookingControllers.getAllBookings);
+router.get('/', (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), booking_controller_1.BookingControllers.getUserBookings);
+router.get('/:bookingId', (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), booking_controller_1.BookingControllers.getSingleBooking);
+router.patch('/:bookingId', (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), booking_controller_1.BookingControllers.updateBooking);
+exports.bookingRoutes = router;

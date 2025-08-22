@@ -22,6 +22,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(cookieParser());
 app.use(express.json());
+app.set("trust proxy", 1); // external proxy/livelink gulo support/trust korar jonno
 app.use(express.urlencoded({ extended: true })); // form data handle er ketre kono issue na howar jonno
 app.use(cors({
     origin: envVars.FRONTEND_URL,

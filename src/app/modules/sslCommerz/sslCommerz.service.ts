@@ -62,7 +62,7 @@ const validatePayment = async (payload: any) => {
             method: 'GET',
             url: `${envVars.SSL.SSL_VALIDATION_API}?val_id=${payload.val_id}&store_id=${envVars.SSL.SSL_STORE_ID}&store_passwd=${envVars.SSL.SSL_STORE_PASS}`
         });
-        console.log("validate payment response", res.data);
+
         await Payment.updateOne(
             { transactionId: payload.tran_id },
             { paymentGatewayData: res.data },

@@ -25,6 +25,9 @@ const paymentSchema = new Schema<IPayment>({
     invoiceUrl: {
         type: String
     },
+    paymentGatewayData: {
+        type: Schema.Types.Mixed
+    },
 }, {
     versionKey: false,
     timestamps: true

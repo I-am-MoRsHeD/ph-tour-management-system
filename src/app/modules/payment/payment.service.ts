@@ -89,7 +89,7 @@ const successPayment = async (query: Record<string, string>) => {
         await sendEmail({
             to: (updatedBooking?.user as unknown as IUser)?.email as string,
             subject: "Your Booking Invoice",
-            templateName: 'Invoice',
+            templateName: 'invoice',
             templateData: invoiceData,
             attachments: [
                 {
