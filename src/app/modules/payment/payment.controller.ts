@@ -5,6 +5,7 @@ import { PaymentServices } from "./payment.service";
 import { envVars } from "../../config/env";
 import { sendResponse } from "../../utils/sendResponse";
 import { JwtPayload } from "jsonwebtoken";
+import { SSLServices } from "../sslCommerz/sslCommerz.service";
 
 
 const initPayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -60,10 +61,23 @@ const getInvoiceURL = catchAsync(async (req: Request, res: Response, next: NextF
     });
 });
 
+const validatePayment = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    console.log("validate payment body data", req.body);
+    await SSLServices.validatePayment(req.body);
+
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "Payment validated successfully",
+        data: null
+    });
+});
+
 export const PaymentController = {
     initPayment,
     successPayment,
     failPayment,
     cancelPayment,
-    getInvoiceURL
+    getInvoiceURL,
+    validatePayment
 }
