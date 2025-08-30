@@ -25,7 +25,8 @@ const createDivision = (0, catchAsync_1.catchAsync)((req, res, next) => __awaite
     });
 }));
 const getAllDivisions = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield division_service_1.DivisionServices.getAllDivisions();
+    const query = req.query;
+    const result = yield division_service_1.DivisionServices.getAllDivisions(query);
     (0, sendResponse_1.sendResponse)(res, {
         statusCode: 200,
         success: true,

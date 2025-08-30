@@ -15,6 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.DivisionServices = void 0;
 const cloudinary_config_1 = require("../../config/cloudinary.config");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
+const QueryBuilder_1 = require("../../utils/QueryBuilder");
+const division_constant_1 = require("./division.constant");
 const division_model_1 = require("./division.model");
 const createDivision = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const existingDivision = yield division_model_1.Division.findOne({ name: payload.name });
@@ -26,14 +28,21 @@ const createDivision = (payload) => __awaiter(void 0, void 0, void 0, function* 
     const division = yield division_model_1.Division.create(payload);
     return division;
 });
-const getAllDivisions = () => __awaiter(void 0, void 0, void 0, function* () {
-    const divisions = yield division_model_1.Division.find({});
-    const totalDivisions = yield division_model_1.Division.countDocuments();
+const getAllDivisions = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(division_model_1.Division.find(), query);
+    const divisionsData = queryBuilder
+        .search(division_constant_1.divisionSearchableFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        divisionsData.build(),
+        queryBuilder.getMeta()
+    ]);
     return {
-        data: divisions,
-        meta: {
-            total: totalDivisions
-        }
+        data,
+        meta,
     };
 });
 const getSingleDivision = (slug) => __awaiter(void 0, void 0, void 0, function* () {
