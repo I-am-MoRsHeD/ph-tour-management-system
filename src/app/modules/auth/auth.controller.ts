@@ -37,7 +37,11 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
             return next(err);
         };
         if (!user) {
-            return next(new AppError(401, info.message));
+            return next(new AppError(400, info.message));
+        };
+
+        if (!user.isVerified) {
+            return next(new AppError(401, "User is not verified"))
         };
 
         const userTokens = await createUserTokens(user);

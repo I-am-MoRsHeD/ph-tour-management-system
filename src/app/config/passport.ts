@@ -17,6 +17,10 @@ passport.use(
             if (!isUserExist) {
                 return done(null, false, { message: "User does not exist" });
             };
+            const bcryptedPassword = await bcrypt.compare(password as string, isUserExist?.password as string);
+            if (!bcryptedPassword) {
+                return done(null, false, { message: "Password is incorrect" });
+            };
             if (isUserExist && (isUserExist.isActive === Active.BLOCKED || isUserExist.isActive === Active.INACTIVE)) {
                 return done(null, false, { message: `User is ${isUserExist.isActive}` });
             };
@@ -28,10 +32,10 @@ passport.use(
                 return done(null, false, { message: "You have logged in through Google. If you want to login with credentials then please login with google and set a password after login. Then you can login with email and password!" });
             };
 
-            const bcryptedPassword = await bcrypt.compare(password as string, isUserExist?.password as string);
-            if (!bcryptedPassword) {
-                return done(null, false, { message: "Password is incorrect" });
-            };
+            // const bcryptedPassword = await bcrypt.compare(password as string, isUserExist?.password as string);
+            // if (!bcryptedPassword) {
+            //     return done(null, false, { message: "Password is incorrect" });
+            // };
 
             return done(null, isUserExist as Partial<IUser>);
         } catch (error) {

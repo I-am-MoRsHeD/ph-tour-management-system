@@ -31,6 +31,11 @@ passport_1.default.use(new passport_local_1.Strategy({
             return done(null, false, { message: "User does not exist" });
         }
         ;
+        const bcryptedPassword = yield bcryptjs_1.default.compare(password, isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.password);
+        if (!bcryptedPassword) {
+            return done(null, false, { message: "Password is incorrect" });
+        }
+        ;
         if (isUserExist && (isUserExist.isActive === user_interface_1.Active.BLOCKED || isUserExist.isActive === user_interface_1.Active.INACTIVE)) {
             return done(null, false, { message: `User is ${isUserExist.isActive}` });
         }
@@ -44,11 +49,10 @@ passport_1.default.use(new passport_local_1.Strategy({
             return done(null, false, { message: "You have logged in through Google. If you want to login with credentials then please login with google and set a password after login. Then you can login with email and password!" });
         }
         ;
-        const bcryptedPassword = yield bcryptjs_1.default.compare(password, isUserExist === null || isUserExist === void 0 ? void 0 : isUserExist.password);
-        if (!bcryptedPassword) {
-            return done(null, false, { message: "Password is incorrect" });
-        }
-        ;
+        // const bcryptedPassword = await bcrypt.compare(password as string, isUserExist?.password as string);
+        // if (!bcryptedPassword) {
+        //     return done(null, false, { message: "Password is incorrect" });
+        // };
         return done(null, isUserExist);
     }
     catch (error) {
